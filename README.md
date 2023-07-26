@@ -1,3 +1,4 @@
+# We plan to generate warped clothes from VITON and use it for our try on model. Following is the original README
 # Style-Based Global Appearance Flow for Virtual Try-On (CVPR 2022)
 ### [Project Page](https://github.com/SenHe/Flow-Style-VTON/) | [Paper](https://arxiv.org/pdf/2204.01046.pdf) | [Video](https://www.youtube.com/watch?v=Og7IDzQJwZQ) | [Poster](https://github.com/SenHe/Flow-Style-VTON/blob/main/poster.pdf) | [Supplementary Material](https://github.com/SenHe/Flow-Style-VTON/blob/main/supp.pdf)
 <div align="center">
