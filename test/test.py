@@ -11,6 +11,8 @@ import cv2
 import torch.nn.functional as F
 from torchvision import utils
 from util import flow_util
+from rich import traceback
+traceback.install()
 
 opt = TestOptions().parse()
 
@@ -60,8 +62,8 @@ total_steps = (start_epoch-1) * dataset_size + epoch_iter
 step = 0
 step_per_batch = dataset_size / opt.batchSize
 
-if not os.path.exists('our_t_results'):
-  os.mkdir('our_t_results')
+if not os.path.exists(opt.result):
+  os.makedirs(opt.result)
 
 for epoch in range(1,2):
 
@@ -81,8 +83,18 @@ for epoch in range(1,2):
 
         flow_out = warp_model(real_image.cuda(), clothes.cuda())
         warped_cloth, last_flow, = flow_out
+        os.makedirs(os.path.join(opt.result, 'warped_clothes'), exist_ok=True)
+        utils.save_image(
+            warped_cloth,
+            os.path.join(opt.result, 'warped_clothes', data['p_name'][0]),
+            nrow=int(1),
+            normalize=True,
+            value_range=(-1,1),
+        )
+
+
         warped_edge = F.grid_sample(edge.cuda(), last_flow.permute(0, 2, 3, 1),
-                          mode='bilinear', padding_mode='zeros')
+                          mode='bilinear', padding_mode='zeros', align_corners=True)
 
         gen_inputs = torch.cat([real_image.cuda(), warped_cloth, warped_edge], 1)
         gen_outputs = gen_model(gen_inputs)
@@ -92,8 +104,8 @@ for epoch in range(1,2):
         m_composite = m_composite * warped_edge
         p_tryon = warped_cloth * m_composite + p_rendered * (1 - m_composite)
 
-        path = 'results/' + opt.name
-        os.makedirs(path, exist_ok=True)
+
+        os.makedirs(os.path.join(opt.result, 'images'), exist_ok=True)
         #sub_path = path + '/PFAFN'
         #os.makedirs(sub_path,exist_ok=True)
         print(data['p_name'])
@@ -104,7 +116,7 @@ for epoch in range(1,2):
 
             utils.save_image(
                 p_tryon,
-                os.path.join('./our_t_results', data['p_name'][0]),
+                os.path.join(opt.result, 'images', data['p_name'][0]),
                 nrow=int(1),
                 normalize=True,
                 value_range=(-1,1),
